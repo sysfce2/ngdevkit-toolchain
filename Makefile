@@ -203,6 +203,14 @@ $(BUILD)/ngbinutils: toolchain/$(SRC_BINUTILS)
 	--bindir=$(prefix)/bin \
 	-v && $(MAKE)
 
+# create various path so that xgcc's default system include path can be used
+# for newlib's includes before they are installed in their destination directory
+$(BUILD)/nggcc/m68k-neogeo-elf/sys-include: toolchain/$(SRC_GCC) toolchain/$(SRC_NEWLIB)
+	mkdir -p $(dir $@) $(dir $@)lib/gcc/m68k-neogeo-elf/`cat toolchain/$(SRC_GCC)/gcc/BASE-VER`
+	if [ ! -d $@ ]; then \
+	    cp -a toolchain/$(SRC_NEWLIB)/newlib/libc/include $@; \
+	fi
+
 # Rationale: we split prefix and exec-prefix so to force gcc to
 # install in a dedicated arch subdir ($PREFIX/m68k-neogeo-elf) and
 # prevent overwriting existing files (e.g. in /usr/lib/gcc*). But in
@@ -210,7 +218,7 @@ $(BUILD)/ngbinutils: toolchain/$(SRC_BINUTILS)
 # ($PREFIX/lib/gcc/m68k-neogeo-elf/5.5.0/../../../../m68k-neogeo-elf/m68k-neogeo-elf/lib)
 # so we need to tweak build variable prefix_to_exec_prefix
 
-$(BUILD)/nggcc: $(BUILD)/ngbinutils toolchain/$(SRC_GCC)
+$(BUILD)/nggcc: $(BUILD)/ngbinutils toolchain/$(SRC_GCC) toolchain/$(SRC_NEWLIB)
 	@echo compiling gcc...
 	CURPWD=$$(pwd) && \
 	$(EXTRA_BUILD_CMD) && \
@@ -250,7 +258,10 @@ $(BUILD)/nggcc: $(BUILD)/ngbinutils toolchain/$(SRC_GCC)
 	--disable-multilib \
 	--disable-libssp \
 	--enable-languages=c \
-	-v && $(MAKE) --eval 'override prefix_to_exec_prefix = ' tooldir=$(prefix)/m68k-neogeo-elf build_tooldir=$(prefix)/m68k-neogeo-elf $(GCC_GMAKE_OVERRIDES)
+	-v && \
+	echo "preparing newlib sysroot for libgcc" && \
+	$(MAKE)	-C $$CURPWD $(BUILD)/nggcc/m68k-neogeo-elf/sys-include && \
+	$(MAKE) --eval 'override prefix_to_exec_prefix = ' tooldir=$(prefix)/m68k-neogeo-elf build_tooldir=$(prefix)/m68k-neogeo-elf $(GCC_GMAKE_OVERRIDES)
 
 $(BUILD)/ngnewlib: $(BUILD)/nggcc toolchain/$(SRC_NEWLIB)
 	@echo compiling newlib...
