@@ -257,7 +257,7 @@ $(BUILD)/nggcc: $(BUILD)/ngbinutils toolchain/$(SRC_GCC) toolchain/$(SRC_NEWLIB)
 	--without-isl \
 	--disable-multilib \
 	--disable-libssp \
-	--enable-languages=c \
+	--enable-languages=c,c++ \
 	-v && \
 	echo "preparing newlib sysroot for libgcc" && \
 	$(MAKE)	-C $$CURPWD $(BUILD)/nggcc/m68k-neogeo-elf/sys-include && \
