@@ -42,7 +42,7 @@ EXTRA_BUILD_FLAGS=
 REALPATH=realpath
 
 # Version of external dependencies
-SRC_BINUTILS=binutils-2.35.2
+SRC_BINUTILS=binutils-2.44
 SRC_GCC=gcc-11.4.0
 SRC_NEWLIB=newlib-4.0.0
 SRC_GDB=gdb-16.3
