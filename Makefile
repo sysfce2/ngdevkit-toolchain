@@ -148,6 +148,9 @@ unpack-toolchain: \
 	toolchain/$(SRC_GDB) \
 	toolchain/sdcc-$(SRC_SDCC:sdcc-src-%=%)
 
+hash-toolchain:
+	@echo "$(SRC_BINUTILS) $(SRC_GCC) $(SRC_NEWLIB) $(SRC_GDB) $(SRC_SDCC)" | base64 | tr -d '\n'
+
 clean-toolchain:
 	find toolchain -mindepth 1 -maxdepth 1 -not -name README.md -exec rm -rf {} \;
 
