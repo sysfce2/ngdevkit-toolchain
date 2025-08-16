@@ -50,6 +50,14 @@ SRC_SDCC=sdcc-src-4.4.0
 
 TOOLCHAIN=ngbinutils nggcc ngnewlib ngsdcc nggdb
 
+
+# Entry point, this target must go before all others
+all: \
+	download-toolchain \
+	unpack-toolchain \
+	build-toolchain
+
+
 # GCC: compilation flags to support all compilers / OS
 #
 # per-file workarounds:
@@ -110,16 +118,20 @@ endif
 
 ifeq ($(shell uname -o),Msys)
 EXTRA_BUILD_FLAGS+=--build=$(MINGW_CHOST) --host=$(MINGW_CHOST)
+EXTRA_BUILD_CMD=export PATH=`$(REALPATH) $(BUILD)`/sed-msys2:$$PATH
+$(BUILD)/ngbinutils: $(BUILD)/sed-msys2/sed.exe
+$(BUILD)/nggcc: $(BUILD)/sed-msys2/sed.exe
+$(BUILD)/ngnewlib: $(BUILD)/sed-msys2/sed.exe
+$(BUILD)/nggdb: $(BUILD)/sed-msys2/sed.exe
+$(BUILD)/ngsdcc: $(BUILD)/sed-msys2/sed.exe
+
+$(BUILD)/sed-msys2/sed.exe: /usr/bin/sed.exe
+	mkdir -p $(dir $@) && cp $< $(dir $@)
 
 GCC_C_BUILD_FLAGS+=-DHAVE_SETLOCALE
 GCC_CXX_BUILD_FLAGS+=-DHAVE_SETLOCALE
 endif
 
-
-all: \
-	download-toolchain \
-	unpack-toolchain \
-	build-toolchain
 
 
 download-toolchain: \
@@ -371,7 +383,22 @@ $(BUILD)/ngsdcc: toolchain/sdcc-$(SRC_SDCC:sdcc-src-%=%)
 install: $(TOOLCHAIN:%=install-%)
 
 install-ngbinutils: $(BUILD)/ngbinutils
+ifeq ($(shell uname -o),Msys)
+	$(EXTRA_BUILD_CMD) && $(MAKE) -C $(BUILD)/ngbinutils install && \
+	mkdir -p $(DESTDIR)$(prefix)/bin; \
+	for i in ar ranlib; do \
+	    rm -f $(DESTDIR)$(prefix)/bin/m68k-neogeo-elf-$$i.exe; \
+	    echo -e \
+"#!/bin/sh\n"\
+"# NOTE: MINGW may be configured to implement symlinks with direct copies,\n"\
+"# which would break $$i's plugin path. This wrapper execs into the real\n"\
+"# binary, which is enough to fix that problem.\n"\
+"exec $(prefix)/m68k-neogeo-elf/bin/$$i.exe \$$*" > $(DESTDIR)$(prefix)/bin/m68k-neogeo-elf-$$i.exe; \
+	    chmod +x $(DESTDIR)$(prefix)/bin/m68k-neogeo-elf-$$i.exe; \
+	done
+else
 	$(EXTRA_BUILD_CMD) && $(MAKE) -C $(BUILD)/ngbinutils install
+endif
 
 install-nggcc: $(BUILD)/nggcc
 	$(EXTRA_BUILD_CMD) && $(MAKE) -C $(BUILD)/nggcc install build_tooldir=$(prefix)/m68k-neogeo-elf --eval 'override toolexecdir = $$(exec_prefix)' --eval 'override build_tooldir = '$(prefix)'/m68k-neogeo-elf'
