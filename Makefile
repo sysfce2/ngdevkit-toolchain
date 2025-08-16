@@ -377,7 +377,7 @@ install-nggcc: $(BUILD)/nggcc
 	$(EXTRA_BUILD_CMD) && $(MAKE) -C $(BUILD)/nggcc install build_tooldir=$(prefix)/m68k-neogeo-elf --eval 'override toolexecdir = $$(exec_prefix)' --eval 'override build_tooldir = '$(prefix)'/m68k-neogeo-elf'
 
 install-ngnewlib: $(BUILD)/ngnewlib
-	$(EXTRA_BUILD_CMD) && $(MAKE) -C $(BUILD)/ngnewlib install
+	$(EXTRA_BUILD_CMD) && $(MAKE) -j1 -C $(BUILD)/ngnewlib install
 
 install-nggdb: $(BUILD)/nggdb
 	$(EXTRA_BUILD_CMD) && $(MAKE) -C $(BUILD)/nggdb install --eval 'override gnulocaledir = $$(localedir)'
