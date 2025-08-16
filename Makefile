@@ -190,7 +190,6 @@ $(BUILD)/ngbinutils: toolchain/$(SRC_BINUTILS)
 	$(EXTRA_BUILD_CMD) && \
 	mkdir -p $(BUILD)/ngbinutils && \
 	cd $(BUILD)/ngbinutils && \
-	sed -i -e 's/\(@item\) \(How GNU properties are merged.\)/\1'$$'\\\n''\2/' $$CURPWD/toolchain/$(SRC_BINUTILS)/ld/ld.texi  && \
 	$$CURPWD/toolchain/$(SRC_BINUTILS)/configure \
 	$(EXTRA_BUILD_FLAGS) \
 	--target=m68k-neogeo-elf \
@@ -224,8 +223,6 @@ $(BUILD)/nggcc: $(BUILD)/ngbinutils toolchain/$(SRC_GCC) toolchain/$(SRC_NEWLIB)
 	$(EXTRA_BUILD_CMD) && \
 	mkdir -p $(BUILD)/nggcc && \
 	cd $(BUILD)/nggcc && \
-	echo "replacing old texi2pod.pl (causes errors with recent perl)" && \
-	cp $$CURPWD/toolchain/$(SRC_BINUTILS)/etc/texi2pod.pl $$CURPWD/toolchain/$(SRC_GCC)/contrib/texi2pod.pl && \
 	AR_FOR_TARGET=$$PWD/../ngbinutils/binutils/ar \
 	AS_FOR_TARGET=$$PWD/../ngbinutils/gas/as-new \
 	LD_FOR_TARGET=$$PWD/../ngbinutils/ld/ld-new \
@@ -301,14 +298,12 @@ $(BUILD)/ngnewlib: $(BUILD)/nggcc toolchain/$(SRC_NEWLIB)
 	--disable-nls \
 	-v && $(MAKE)
 
-$(BUILD)/nggdb: toolchain/$(SRC_BINUTILS) toolchain/$(SRC_GDB)
+$(BUILD)/nggdb: toolchain/$(SRC_GDB)
 	@echo compiling gdb...
 	CURPWD=$$(pwd) && \
 	$(EXTRA_BUILD_CMD) && \
 	mkdir -p $(BUILD)/nggdb && \
 	cd $(BUILD)/nggdb && \
-	echo "replacing old texi2pod.pl (causes errors with recent perl)" && \
-	cp $$CURPWD/toolchain/$(SRC_BINUTILS)/etc/texi2pod.pl $$CURPWD/toolchain/$(SRC_GDB)/etc/texi2pod.pl && \
 	CFLAGS="$$CFLAGS $(GDB_C_BUILD_FLAGS)" \
 	CPPFLAGS="$$CPPFLAGS $(GDB_C_BUILD_FLAGS)" \
 	CXXFLAGS="$$CXXFLAGS $(GDB_CXX_BUILD_FLAGS)" \
