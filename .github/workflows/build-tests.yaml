@@ -6,7 +6,7 @@ on:
 jobs:
   cache:
     name: Cache Toolchain dependencies
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       PREFIX: "/usr"
       GNU_MIRROR: "https://mirror.checkdomain.de/gnu"
@@ -60,6 +60,7 @@ jobs:
 
       - name: Dependencies
         run: >
+          sudo apt-get update;
           sudo apt-get install pkg-config gcc g++ flex bison gawk
           gettext bzip2 lzma xz-utils libboost-dev libexpat1-dev
           libgc-dev libgmp-dev zlib1g-dev libipt-dev libmpc-dev

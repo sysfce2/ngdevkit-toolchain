@@ -6,7 +6,7 @@ on:
 jobs:
   cache:
     name: Cache Toolchain dependencies
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       PREFIX: "/usr"
       GNU_MIRROR: "https://mirror.checkdomain.de/gnu"
@@ -60,6 +60,7 @@ jobs:
 
       - name: Dependencies
         run: >
+          sudo apt-get update;
           sudo apt-get install pkg-config gcc g++ flex bison gawk
           gettext bzip2 lzma xz-utils libboost-dev libexpat1-dev
           libgc-dev libgmp-dev zlib1g-dev libipt-dev libmpc-dev
@@ -151,7 +152,7 @@ jobs:
 
   deploy_deb:
     name: "deb: trigger Launchpad rebuild"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     needs: [linux, win, macos]
     steps:
       - name: Checkout
@@ -166,7 +167,7 @@ jobs:
   deploy_rpm:
     name: "rpm: trigger COPR rebuild"
     needs: [linux, win, macos]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -189,7 +190,7 @@ jobs:
 
   deploy_brew:
     name: "brew: trigger bottle rebuild"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     needs: [linux, win, macos]
     steps:
       - name: Checkout
@@ -210,7 +211,7 @@ jobs:
   deploy_msys2:
     name: "msys2: trigger package rebuild"
     needs: [linux, win, macos]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -229,7 +230,7 @@ jobs:
 
   cleanup_tags:
     name: "Cleanup tags and artefacts"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     needs: [deploy_deb, deploy_rpm, deploy_brew, deploy_msys2]
     steps:
       - name: Checkout
